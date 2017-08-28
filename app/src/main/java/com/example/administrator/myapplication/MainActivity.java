@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         rotationLL = (LinearLayout) findViewById(R.id.rotationLL);
+        //ce
 //        requestWindowFeature(Window.FEATURE_NO_TITLE);
       /*  LinearLayout callTitleLL = (LinearLayout) findViewById(R.id.callTitleMeLL);
         LinearLayout pingLunTitleLL = (LinearLayout) findViewById(R.id.pingLunTitleLL);
