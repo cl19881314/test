@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        >
+        <LinearLayout
+            android:id="@+id/rotationLL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_circle_yellow"/>
+            <Button
+                android:id="@+id/showTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="登陆状态"
+                android:background="@drawable/base_btn_bg_blue_selector"
+                android:textColor="#333333"
+                android:textSize="20sp"/>
+
+        </LinearLayout>
+    </RelativeLayout>
