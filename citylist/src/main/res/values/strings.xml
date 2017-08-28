@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">CityList</string>
+    <string name="input_city_to_search">请输入要查找的城市</string>
+    <string name="not_find_city">抱歉，暂时没有找到相关城市</string>
+    <string name="recent_city">最近浏览城市</string>
+    <string name="hot_city">热门城市</string>
+    <string name="location_city">定位城市</string>
+    <string name="location_ing">正在定位...</string>
+    <string name="location_failure">定位失败，请重试</string>
+</resources>
