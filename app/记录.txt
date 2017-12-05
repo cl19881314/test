@@ -1,0 +1,447 @@
+多想运用3目运算符使代码简练
+------------------------------------------------------------------------------------
+同步代码块要尽量少，锁对象new Object()，同步代码块获取到锁时一直往后做，在while(true)里面到wait()里等待notify唤醒
+需要锁住的值每次都要使用synchronized (mLock)
+                    synchronized (mLock) {
+                        if (mList.isEmpty()) {
+                            if (mFinish) //while的结束条件
+                                break;
+                            try {
+//                                Log.d(TAG,"--mLock.wait()--");
+                                mLock.wait();
+                                continue; //这很关键
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+//                        Log.d(TAG,"--mLock. work()--");
+                        mMdlList = mList.get(0); //获取值
+                    }
+服务里面同过StartCommand里面参数Intent传递启动服务的传递值
+服务里面调用this.stopSelf()结束掉服务自己
+List.remove(0),把第一个元素移除后，第二个元素向前移动到第一个位置里面，
+List.add(null),那么list.size() = 1 并且 list.isEmpty 为false
+INVISIBLE和GONE的主要区别是：当控件visibility属性为INVISIBLE时，界面保留了view控件所占有的空间；
+							而控件属性为GONE时，界面则不保留view控件所占有的空间。
+BaseAdapter 执行顺序，先是getCount不为0，才会继续执行其他的方法，getItemViewType与getCount无关
+AsyncTask注意事项
+1、不要在同一个AsyncTask实例中多次执行execute()，正确的方法是new一个AsyncTask执行一次execute()。
+2、耗时任务一定要在doInBackground()中处理，不要在其他回调方法中处理耗时任务以免引起UI主线程的阻塞。
+3、不要再doInBackground()中更新UI界面，应该通过publishProgress()调用回调方法更新UI。
+4、onCancelled()只能触发AsyncTask的cancel()方法，并无法取消正在线程池运行的线程任务，但可以通过标志位来停止线程任务。
+5、在不同的android版本中，AsyncTask多任务运行，有些是可以并行有些则是顺序执行，不过在高版本Android中，可以通过指定参数设置线程池执行规则。
+6、AsyncTask适合处理短时间的操作,长时间的操作,比如下载一个很大的视频,这就需要你使用自己的线程来下载,不管是断点下载还是其它的。
+
+PackageManager.getLaunchIntentForPackage() //判断其他应用是否存在，参数为应用的包名
+
+关于外键问题，同一字段不允许对应不同类的外键，如果有多个外键需要有在不同字段中。
+
+在谷歌后发现。窗体泄露的原因是有些dialog或则processDialog等引起的。这些空间依附的Activity已经关闭而这些控件还在运行中。所以导致bug
+典型的场合是activity 和dialog同时显示 要先dialog.dismiss() 后activity.finish() 如果直接finish() 会出错 但不影响功能。
+
+ArrayList不能边遍历，边进行remove，使用Iterator移除
+				ArrayList<String> showItemFromServeList = getShowItemFromServer();
+				Iterator<SimpleFunModel> iterator = mGthList.iterator();
+				while(iterator.hasNext()){
+					SimpleFunModel sfm = iterator.next();
+					boolean find= false;
+					if (showItemFromServeList.contains(sfm.getCode())){
+						find = true;
+					}
+					if (!find)
+						iterator.remove();
+				}
+
+select tbl_name from sqlite_master where type = 'table'   //获取所有的表名
+
+PRAGMA table_info(TABLE_GTH_QRC_INFO_new)             //获取表里的全部字段名
+
+精度转换问题，不要手动转换，让系统帮忙
+	long size = 22L;
+	double mb = 1024 * 1024.0d;
+	double f = size / mb;
+	return String.format("%.3f",f);
+		
+要写出来的代码结构简单，别人容易看懂才行。
+不单单只是复制别人的代码，要注意代码优化。
+
+int 默认值为0，String默认值null
+
+变量命名规范
+
+能写父类里的，抽象到父类里面
+
+-----------------------------------------------------
+ButterKnife 
+
+DataBinding  
+
+RxJava   http://gank.io/post/560e15be2dca930e00da1083
+	RxJava 的异步实现，是通过一种扩展的观察者模式来实现的。
+	Observer 即观察者，它决定事件触发的时候将有怎样的行为。onNext、onCompleted、onError
+	实质上，在RxJava的subscribe过程中，Observer也总是会先被转换成一个Subscriber再使用。
+	所以如果你只想使用基本功能，选择Observer和 Subscriber 是完全一样的。
+	它们的区别对于使用者来说主要有两点：
+	onStart(): 这是Subscriber增加的方法。它会在subscribe刚开始，而事件还未发送之前被调用，可以用于做一些准备工作，例如数据的清零或重置。
+	这是一个可选方法，默认情况下它的实现为空。需要注意的是，如果对准备工作的线程有要求（例如弹出一个显示进度的对话框，这必须在主线程执行），onStart() 就不适用了，因为它总是在 subscribe 所发生的线程被调用，而不能指定线程。要在指定的线程来做准备工作，可以使用 doOnSubscribe() 方法，具体可以在后面的文中看到。
+	unsubscribe(): 这是 Subscriber 所实现的另一个接口 Subscription 的方法，用于取消订阅。在这个方法被调用后，Subscriber 将不再接收事件。一般在这个方法调用前，可以使用 isUnsubscribed() 先判断一下状态。 unsubscribe() 这个方法很重要，因为在 subscribe() 之后， Observable 会持有 Subscriber 的引用，这个引用如果不能及时被释放，将有内存泄露的风险。所以最好保持一个原则：要在不再使用的时候尽快在合适的地方（例如 onPause() onStop() 等方法中）调用 unsubscribe() 来解除引用关系，以避免内存泄露的发生。
+
+	Observable 即被观察者，它决定什么时候触发事件以及触发怎样的事件。
+	
+
+OrmLite
+
+----------------------------------------------
+Dialog  
+1： 要在dialog.show()方法后面设置长宽
+	WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+	lp.width = Comm.GetScreenPix(this)[0]; //设置宽度
+	lp.height = Comm.GetScreenPix(this)[1]/2;
+	dialog.getWindow().setAttributes(lp);
+2：	
+	Window win = dialog.getWindow();
+	win.getDecorView().setPadding(0, 0, 0, 0);
+	WindowManager.LayoutParams lp = win.getAttributes();
+	lp.width = WindowManager.LayoutParams.FILL_PARENT;
+	lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+	win.setAttributes(lp);
+dialog 默认的样式@android:style/Theme.Dialog 对应的style 有pading属性，所以
+win.getDecorView().setPadding(0, 0, 0, 0); 就能够水平占满了
+3：Dialog动态添加EditText,无法弹出提示框
+    //下面两行代码加入后即可弹出输入法
+    dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+  
+----------------------------------------------------------
+代码中设置TextView和Button左边图标
+Drawable accountD = getResources().getDrawable(R.drawable.logon_acc_h);
+// 调用setCompoundDrawables时，必须调用Drawable.setBounds()方法,否则图片不显示
+accountD.setBounds(0, 0, accountD.getMinimumWidth(), accountD.getMinimumHeight());
+textview.setCompoundDrawables(accountD, null, null, null); //设置左图标
+
+-------------------------------------------------------------------
+ListView和ScrollView滚动事件冲突
+    listView.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP){
+                    scrollView.requestDisallowInterceptTouchEvent(false);
+                }else{
+                    scrollView.requestDisallowInterceptTouchEvent(true);
+                }
+                return false;
+            }
+        });
+--------------------------------------------------------------------
+编译版本最好不要用23， 6.0系统权限编译
+
+坑一：用Android5.0编译的apk，在Android6.0上运行完全没有问题。
+在Android6.0以上才需要在运行时请求权限，在旧Android版本上保留原有逻辑，安装时授予权限。
+用旧版本sdk编译的apk，都使用旧版本权限方式，安装时授予权限。(也就是说：兼容旧版本)
+用Android6.0(targetSdkVersion 23)编译apk才需要处理新的权限问题。
+还有一个蛋疼的问题：程序运行当中，用户关闭了权限，会发生什么？（还未知）
+
+-----------------------------------------------------
+OKHttp学习
+
+
+-----------------------------------------------
+  DecimalFormat df = new DecimalFormat(".0"); //保留一位小数
+  df.format(distance)
+  
+----------------------------------------------------------
+AIDL学习
+支持数据类型：基本数据类型（short除外）， String, CharSequence,List, Map ,自定义parcelable 
+in, out, inout
+
+
+2、自定义MDL数据 implement Parcelabel,
+实现下面方法：
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(name1);
+        parcel.writeString(name2);
+    }
+
+    public void readFromParcel(Parcel dest) {
+        name1 = dest.readString();
+        name2 = dest.readString();
+    }
+	//固定方法名称
+    public static final Creator<DataMdl> CREATOR = new Creator<DataMdl>() {
+        @Override
+        public DataMdl createFromParcel(Parcel parcel) {
+            return new DataMdl(parcel);
+        }
+
+        @Override
+        public DataMdl[] newArray(int i) {
+            return new DataMdl[i];
+        }
+    };
+3、自定义数据MDL，需要创建对应的.aidl文件，格式：parcelable DataMdl;
+注意：  1、创建aidl文件夹
+		2、服务端和客服端的AIDL下包名要一样
+		3、AS里的gradle添加aidl文件下编译    
+			sourceSets {
+				main {
+					java.srcDirs = ['src/main/java', 'src/main/aidl']
+				}
+			}
+		4、writeToParcel中的write顺序和构造函数初始化顺序一样
+AIDL原理分析：
+	Sub:存根
+	Proxy：代理
+	客服端通过BindServer开启调用服务端的onBind方法建立连接
+	onBind方法返回XXXServer的引用mIBinder，他表示为对应服务器的代理
+	客服端方法中建立连接方法中IxxxxService.Stub.asInterface(IBinder obj)；（获得服务器端的代理，）得到一个IxxxxService 实例
+	通过返回的代理去操作对应自己在aidl文件中定义方法，及是调用服务器端内部发方法
+AIDL Binder Message 区别
+
+Android进程间通信方式：
+	1、activity 通过Intent发送	（指采通方式）
+	2、BroadCase 通过广播方式发送，其他应用接收到广播
+	3、ContentProvider 主要是操作其他应用数据
+	4、AIDL Service 跨进程通信
+------------------------------------------------------------
+在Android5.0上面下面两种需要设置如下才能显示为WhereView滚轮的形式，并且这样才会回调onDateChanged和onTimeChanged方法
+DatePicker   android:datePickerMode="spinner"
+TimePicker   android:timePickerMode="spinner"
+
+
+------------------------------------------------------------------------------------------------------------
+读《APP研发录》
+
+1、时间校验，通过http中head中的Date（或者接口返回时间）与本地获取手机里面的值做一个差值，将它保存到本地，用到时间的时候本地时间加上保存的时间值
+	一个APP中网络请求是比较多的，时间是准确的
+	
+	
+---------------------------------------------------------------------------------
+
+	高度并发且线程安全的HashMap怎么实现
+	
+	ArrayList是非线程安全的， vector是线程安全的
+	HashMap是非线程安全的， HashTable是线程安全的
+	StringBulider是非线程安全的，StringBuffer是线程安全的
+	
+	
+----------------------------------------------------------------------------------------------------------------------
+view的坐标系统是相对于父控件而言的，getTop(),getRight()获取到的值都是相对于父控件的
+MotionEvent中 getX(),getY()获取触摸点相对所在组件的值， getRawX(),getRawY()是获取触摸点相对于屏幕的值
+
+-------------------------------------------------------------------
+服务保活 5.0 JobService  JobScheduler
+
+------------------------------------------------------
+自定义View的绘制流程
+
+开始 --》构造函数(View初始化)--》onMeasure()(测量View大小)---》onSizecChange()(确定View大小)
+		----》onLayout()(确定子VIew布局（包含子View时用）)-----》onDraw()(实际绘制内容)----》结束
+
+视图更新 invalidate()
+
+
+------------------------------------------------------------------------
+ Tablayout+ViewPager+Fragment 实现神奇滑动效果
+结合ViewPager做tab滑动效果  	tablayout.setupWithViewPager(viewpager);
+
+沉浸式效果
+CoordinatorLayout
+layout_anchor 指定参照物, layout_anchorGravity 指定相对于参照物的位置
+app:layout_behavior="@string/appbar_scrolling_view_behavior"用来通知AppBarLayout 这个特殊的view何时发生了滚动事件，这个behavior需要设置在触发滚动事件的view之上。
+
+
+FloatingActionButton(悬浮按钮)： 引入： compile 'com.android.support:design:25.3.1'
+1、app:borderWidth=""------------------边框宽度，通常设置为0 ，用于解决Android 5.X设备上阴影无法正常显示的问题
+2、app:backgroundTint=""---------------按钮的背景颜色，不设置，默认使用theme中colorAccent的颜色
+3、app:rippleColor=""--------------------点击的边缘阴影颜色
+4、app:elevation=""----------------------边缘阴影的宽度
+5、app:pressedTranslationZ="16dp"-----点击按钮时，按钮边缘阴影的宽度，通常设置比elevation的数值大
+
+------------------------------------------------------------------------
+	Executors.newCachedThreadPool();// 一个没有限制最大线程数的线程池
+    Executors.newFixedThreadPool(count);// 限制线程池大小为count的线程池
+    Executors.newScheduledThreadPool(count);// 一个可以按指定时间可周期性的执行的线程池
+    Executors.newSingleThreadExecutor();// 每次只执行一个线程任务的线程池
+	
+	
+	
+--------------------------------------------------------------------------------
+FastJson 解析时候数据MDL，内部类需要使用public static class Rest{ }才能解析
+
+代码中设置密码类型
+EditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+EditText可点击 android:clickable="true" android:foucusable="false"
+
+
+----------------------------------------------------------------------
+组件化开发模式
+
+
+
+------------------------------------------------------------------
+单列里面使用APPlicationContext
+重点看Activity和Application，可以看到，和UI相关的方法基本都不建议或者不可使用Application，并且，
+前三个操作基本不可能在Application中出现。实际上，只要把握住一点，凡是跟UI相关的，都应该使用Activity做为Context来处理；
+其他的一些操作，Service,Activity,Application等实例都可以，当然了，注意Context引用的持有，防止内存泄漏。
+
+
+
+----------------------------------------------------------------------------------
+高德地图：
+Marker处理
+	MarkerOption option = new MarkerOption();
+	AMap.addMarker(option); //地图中显示marker
+	Marker marker = AMap.addMarker(option)
+	marker.setObject("传递值对象到Marker点击事件中");
+
+百度地图：
+		OverlayOptions oo = new MarkerOptions().position(new LatLng(lat, lng)).icon(bd).draggable(true);
+		oper.setOrg(obj.opt("department") == null ? "" : obj.opt("department").toString());
+		Bundle b = new Bundle();
+		b.putParcelable("OPER_INFO", oper);
+		Marker m = (Marker) (mBaiduMap.addOverlay(oo));
+		m.setExtraInfo(b);
+		
+-------------------------------------------------------------
+OAuth 2.0
+
+
+----------------------------------------
+leakcanary 需要学习， 内存检查相关
+
+--------------------------------
+Android 权限动态申请问题
+easypermissions
+
+-----------------------------------
+moveTaskToBack(boolean nonRoot)
+nonRoot=false→ 仅当activity为task根（即首个activity例如启动activity之类的）时才生效
+nonRoot=true→ 忽略上面的限制
+isTaskRoot()
+
+---------------------------
+Protocol Buffer
+
+------------------------------------------------
+Toolbar
+
+
+-------------------------------------------
+Bmob
+一个用户管理 （注册，登录） 一个与后台相关数据库存储
+使用BmobAndroidSDK实现用户登录、注册等功能操作
+
+
+---------------------------------
+Boxing 是一个多媒体选择器库。
+
+可以选择一张或者多张图片，提供预览和裁剪功能。
+
+同样支持gif图，选择视频和图像压缩功能。
+
+GalleryFinal 
+
+
+----------------------------------------
+实现 Application.ActivityLifecycleCallbacks 可以实现判断应用是处于前台还是处于后台的
+微察+代码
+安卓API14  4.0以上支持
+参考：http://www.jianshu.com/p/91e68b82b6c1
+
+------------------------------------------
+进入activity时候默认隐藏掉EditText的输入框
+ android:windowSoftInputMode="stateHidden|stateUnchanged" 
+ 
+ ----------------------------------------------
+ 密码验证
+    public boolean checkPwdRule(String pwd){
+//      1) 密码控制只能输入字母、数字、特殊符号(~!@#$%^&*()_+[]{}|\;:'",./<>?)
+//		2) 长度 6-18 位，必须包括字母、数字、特殊符号中的2种
+//		判断密码是否包含数字：包含返回1，不包含返回0
+        int i = pwd.matches(".*\\d+.*") ? 1 : 0;
+//		判断密码是否包含字母：包含返回1，不包含返回0
+        int j = pwd.matches(".*[a-zA-Z]+.*") ? 1 : 0;
+//		判断密码是否包含特殊符号(~!@#$%^&*()_+|<>,.?/:;'[]{}\)：包含返回1，不包含返回0
+        int k = pwd.matches(".*[-~!@#$%^&*()_+=|<>,.?/:;…'\\[\\]{}\" ·；：‘’“”，。、？《》（）……!＆＠＃［］【】——]+.*") ? 1 : 0;
+//		判断密码长度是否在6-18位
+        int l = pwd.length();
+
+        if (i + j + k < 2 || l < 6 || l > 18) {
+            return false;
+        }
+        return true;
+    }
+------------------------------------------------------
+android:gravity：
+这个是针对控件里的元素来说的，用来控制元素在该控件里的显示位置。
+android:layout_gravity：相对于父控件位置
+
+
+--------------------------------------
+立刻停止编译 gradlew --stop
+
+
+----------------------------------------
+RecycleView
+gradle添加
+dependencies {
+    ...
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    ...
+}
+
+瀑布流  StaggeredGridLayoutManager
+水平垂直 LinearLayoutManager
+网格     GridLayoutManager
+
+可以根据位置返回getItemViewType区分显示不同的布局item
+
+ItemToucheHelper可以帮助我们实现左右滑动删除，拖拽移动位置等操作
+http://blog.csdn.net/qq_30379689/article/details/52463139
+
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                Log.e("gnt","-gnt->getMovementFlags");
+                //拖拽
+                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                //左右滑动
+                //int dragFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                //滑动
+                //int swipeFlags = 0;
+                int swipeFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                return makeMovementFlags(swipeFlags, 0); 
+            }
+---------------------------------------------
+getX、getY是相对于自己控件的位置距离，getRawX、getRawY是相对于整个屏幕的距离
+
+任何一个控件都是可以滚动的，因为在View类当中有scrollTo()和scrollBy()这两个方法
+scrollTo()方法是让View相对于初始的位置滚动某段距离，由于View的初始位置是不变的，因此不管我们点击多少次scrollTo按钮滚动到的都将是同一个位置。
+而scrollBy()方法则是让View相对于当前的位置滚动某段距离，那每当我们点击一次scrollBy按钮，View的当前位置都进行了变动，因此不停点击会一直向右下方移动。 
+当点击scrollTo按钮时，两个按钮会一起向右下方滚动，因为我们传入的参数是-60和-100，因此向右下方移动是正确的。但是之后再点击scrollTo按钮就没有任何作用了，界面不会再继续滚动，只有点击scrollBy按钮界面才会继续滚动，并且不停点击scrollBy按钮界面会一起滚动下去。 
+
+
+-------------------------------
+	PopWindow点击外部可以隐藏
+        pw.setBackgroundDrawable(new BitmapDrawable());
+        pw.setOutsideTouchable(true);
+		
+		
+--------------------------------------------------------------------------
+Okhttp网络拦截器
+
+
+------------------------------------------------------------------------------
+Handler 可能会造成内存泄漏
+使用Handler导致内存泄露的解决方法
+
+方法一：通过程序逻辑来进行保护。
+1.在关闭Activity的时候停掉你的后台线程。线程停掉了，就相当于切断了Handler和外部连接的线，Activity自然会在合适的时候被回收。 
+2.如果你的Handler是被delay的Message持有了引用，那么使用相应的Handler的removeCallbacks()方法，把消息对象从消息队列移除就行了。
+
+方法二：将Handler声明为静态类。
+PS:在Java 中，非静态的内部类和匿名内部类都会隐式地持有其外部类的引用，静态的内部类不会持有外部类的引用。
+静态类不持有外部类的对象，所以你的Activity可以随意被回收。由于Handler不再持有外部类对象的引用，导致程序不允许你在Handler中操作Activity中的对象了。
+所以你需要在Handler中增加一个对Activity的弱引用（WeakReference）。
+		
